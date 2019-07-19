@@ -23,8 +23,12 @@ var VPuzzle = function () {
         ctx.fillText("Puzzle Game" , 10 , 10);
         
         //test shape
+        ctx.rect(50,50,50,50); //x,y,w,h
         ctx.fillStyle = "rgb(25,25,25)";
-        ctx.fillRect(20,20,100,100); //x,y,w,h
+        ctx.fill();
+        ctx.lineWidth = 1;
+        ctx.strokeStyle = "rgb(255,255,255)";
+        ctx.stroke();
     }
     
     return {
