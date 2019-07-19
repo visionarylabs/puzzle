@@ -5,5 +5,8 @@
 **/
 
 var VPuzzle = function () {
-  var canvas = document.getElementById('main-canvas');
+    console.log('hello world, new puzzle game created.')
+    var canvas = document.getElementById('game');
 }
+
+var game = new VPuzzle();
