@@ -12,6 +12,34 @@ var VPuzzle = function () {
     canvas.height = 500;
     canvas.id = 'game';
     
+    var settings = {
+        tileSize : 50,
+        tileCount : 5
+    };
+    
+    //sample array of squares to make up one shape
+    var tiles = {}
+    
+    var drawTile = function (x,y) {
+        //test shape
+        ctx.rect(x,y,settings.tileSize,settings.tileSize); //x,y,w,h
+        ctx.fillStyle = "rgb(25,25,25)";
+        ctx.fill();
+        ctx.lineWidth = 1;
+        ctx.strokeStyle = "rgb(255,255,255)";
+        ctx.stroke();
+    }
+    
+    var drawTiles = function() {
+        var x = 50;
+        var y = 50;
+        var i = 0;
+        for(i=0; i < settings.tileCount; i++){
+            y += (i * settings.tileSize);
+            drawTile(x,y);
+        }
+    }
+    
     // draw / render everything
     var render = function () {
         ctx.clearRect(0,0,canvas.width, canvas.height);
@@ -22,13 +50,8 @@ var VPuzzle = function () {
         ctx.textBaseline = "top";
         ctx.fillText("Puzzle Game" , 10 , 10);
         
-        //test shape
-        ctx.rect(50,50,50,50); //x,y,w,h
-        ctx.fillStyle = "rgb(25,25,25)";
-        ctx.fill();
-        ctx.lineWidth = 1;
-        ctx.strokeStyle = "rgb(255,255,255)";
-        ctx.stroke();
+        drawTiles();
+        
     }
     
     return {
