@@ -1,0 +1,16 @@
+/**
+  VL puzzle game main styles
+**/
+
+body{
+  background: #111;
+  color: #eee;
+  font-family: Helvetica, Arial, Sans-Serif;
+}
+
+.main-canvas{
+  background: #333;
+  width: 500px;
+  height: 500px;
+  margin: 40px auto;
+}
