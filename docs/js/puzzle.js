@@ -31,12 +31,12 @@ var VPuzzle = function () {
     }
     
     var drawTiles = function() {
-        var x = 50;
+        var x = 20;
         var y = 50;
         var i = 0;
         for(i=0; i < settings.tileCount; i++){
-            y += (i * settings.tileSize);
             drawTile(x,y);
+            y += settings.tileSize;
         }
     }
     
