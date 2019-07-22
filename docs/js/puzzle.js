@@ -11,16 +11,32 @@ var VPuzzle = function () {
     canvas.width = 500;
     canvas.height = 500;
     canvas.id = 'game';
-    
+
     var settings = {
-        tileSize : 50,
+        tileSize : 30,
         tileCount : 4, //e.g. 4 for tetrominoes
         startingX : 20,
         startingY : 50,
     }
 
+    var constants = {
+        //the rest of the shapes will fit in a n-2 x n-1 grid
+        maxXCount : settings.tileCount - 2,
+        maxYCount : settings.tileCount - 1,
+    }
+
+    var buildState = {
+        //a state to save the tile position as we build each shape
+        tilePosY : 0,
+        tilePosX : 0,
+        lastPosY : 0,
+        lastPosX : 0,
+        leftEdgeCount : constants.maxYCount,
+        topEdgeCount : constants.maxXCount
+    }
+
     var shapes = [] //an array of shapes
-    
+
     // init
     var init = function () {
         makeShapes();
@@ -28,46 +44,62 @@ var VPuzzle = function () {
         console.log(shapes);
         render();
     }
-    
+
     var makeShapes = function () {
         var shape = [];
         var tile = [];
         var i = 0;
-        var x = 0;
-        var y = 0;
 
-        if( 0 === shapes.length ){
-            //make the first shape
-            console.log('make the first shape, a straight line');
-            for(i=0; i < settings.tileCount; i++){
-                tile = [0,i];
-                shape.push(tile);
+        if( 12 === shapes.length ) return; //fail safe
+
+        //the main loop to make all the rest of shapes
+        //loop for each tile in the shpae tile count
+
+        for(i=0; i < settings.tileCount; i++){
+
+            if(i === 0 ){
+                //reset x and y for this shape
+                buildState.tilePosY = 0;
+                buildState.tilePosX = 0;
+            }else{
+                buildState.tilePosY++;
             }
-        }else{
-            //find the next shape to make
-            //move the bottom tile to the next column
-            console.log('make the 2nd shape, an L');
-            for(i=0; i < settings.tileCount; i++){
-                if(i < settings.tileCount - 1){
-                    x = 0;
-                    y = i;
-                }else{
-                    x = 1;
-                    y = 0;
+            
+            if( buildState.tilePosY >= buildState.leftEdgeCount ){
+                buildState.tilePosY = buildState.lastPosY;
+            }
+            
+            if( shapes.length > 0 ){
+                if( (i+1) > buildState.leftEdgeCount ){
+                    buildState.tilePosX++;
+                    buildState.lastPosY++;
+                    if(buildState.lastPosY >= constants.maxYCount){
+                        buildState.lastPosY = 0;
+                        buildState.leftEdgeCount--;
+                    }
                 }
-                tile = [x,y];
-                shape.push(tile);
             }
+            
+            //do not allow tiles to go off the preset area
+            if( 
+                buildState.tilePosX >= constants.maxXCount || 
+                buildState.tilePosY >= constants.maxYCount
+            ) return;
+            
+            console.log( '...building tile ' + (i+1) + ':    ' + buildState.tilePosX + ', ' + buildState.tilePosY );
+            tile = [ buildState.tilePosX, buildState.tilePosY ];
+            shape.push(tile);
+
         }
         
-        shapes.push(shape);
-        if(shapes.length < 2){
-            makeShapes();
-        }
+        console.log( 'BUILDING SHAPE #' + Number(shapes.length + 1) );
+        shapes.push(shape);//add the last shape to the list
+        makeShapes(); //call again or the next shape
+
     }
-    
+
     //Drawings and Rendering Functions
-    
+
     // draw / render everything
     var render = function () {
         ctx.clearRect(0,0,canvas.width, canvas.height);
@@ -79,20 +111,28 @@ var VPuzzle = function () {
         ctx.fillText("Puzzle Game" , 10 , 10);
         drawShapes();
     }
-    
+
     //draw all the shpaes in the list
     var drawShapes = function () {
         var i = 0;
         var count = shapes.length;
         for(i=0; i < count; i++){
-            console.log('drawing shape #' + i);
-            console.log(shapes[i]);
+            //console.log('drawing shape #' + i);
+            //console.log(shapes[i]);
             drawShape( shapes[i] );
-            settings.startingX += (settings.tileSize * 2);
+
+            //position the next shape draw in next spot on canvas
+            settings.startingX += (settings.tileSize * (constants.maxXCount + 1) );
+            if( settings.startingX + (settings.tileSize * (constants.maxXCount + 1) ) > canvas.width ){
+                settings.startingX = 20;
+                settings.startingY += (settings.tileSize * (constants.maxYCount + 2) );
+            }
+
         }
     }
-    
+
     var drawShape = function (shape) {
+        drawBackground(settings.startingX,settings.startingY);
         var x = settings.startingX;
         var y = settings.startingY;
         var i = 0;
@@ -103,22 +143,27 @@ var VPuzzle = function () {
             drawTile( x, y );
         }
     }
-    
+
     //draw one tile
     var drawTile = function ( x, y ) {
         //test shape
-        ctx.rect( x, y, settings.tileSize, settings.tileSize ); //x,y,w,h
-        ctx.fillStyle = "rgb(25,25,25)";
-        ctx.fill();
+        ctx.fillStyle = "rgb(20,20,20)";
         ctx.lineWidth = 1;
-        ctx.strokeStyle = "rgb(200,200,200)";
-        ctx.stroke();
+        ctx.strokeStyle = "rgb(120,120,120)";
+        ctx.fillRect( x, y, settings.tileSize, settings.tileSize );
+        ctx.strokeRect( x, y, settings.tileSize, settings.tileSize );
     }
-    
+
+    //draw background
+    var drawBackground = function ( x, y ) {
+        ctx.fillStyle = "rgb(65,65,65)";
+        ctx.fillRect( x, y, (settings.tileSize * constants.maxXCount), (settings.tileSize * constants.maxYCount) );
+    }
+
     return {
         init : init
     }
-    
+
 }
 
 var game = new VPuzzle();
