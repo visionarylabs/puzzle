@@ -8,34 +8,37 @@ var VPuzzle = function () {
     console.log('hello world, new puzzle game created.')
     var canvas = document.getElementById('game');
     var ctx = canvas.getContext("2d");
-    canvas.width = 500;
-    canvas.height = 500;
+    canvas.width = 700;
+    canvas.height = 700;
     canvas.id = 'game';
 
+    //the main array of all shapes
+    var shapes = [];
+
     var settings = {
-        tileSize : 30,
-        tileCount : 4, //e.g. 4 for tetrominoes
+        tileCount : 5, //e.g. 4 for tetrominoes
+        tileSize : 25,
         startingX : 20,
         startingY : 50,
     }
 
+    //set constants based on settins
+    //the rest of the shapes after shape 1 will fit in a n-2 x n-1 grid
     var constants = {
-        //the rest of the shapes will fit in a n-2 x n-1 grid
-        maxXCount : settings.tileCount - 2,
-        maxYCount : settings.tileCount - 1,
+        startingX : 20,
+        maxXCount : settings.tileCount - 1,
+        maxYCount : settings.tileCount,
     }
 
     var buildState = {
         //a state to save the tile position as we build each shape
-        tilePosY : 0,
+        tilePosY : 0, //the placement of the next tile
         tilePosX : 0,
-        lastPosY : 0,
-        lastPosX : 0,
-        leftEdgeCount : constants.maxYCount,
-        topEdgeCount : constants.maxXCount
+        curRow : 0, //the current column to build down
+        curCol : 0, //the current row to build across
+        leftEdgeCount : constants.maxYCount, //the max Left Edge for the current loop
+        topEdgeCount : constants.maxXCount, //the max Top Edge for the current loop
     }
-
-    var shapes = [] //an array of shapes
 
     // init
     var init = function () {
@@ -49,51 +52,63 @@ var VPuzzle = function () {
         var shape = [];
         var tile = [];
         var i = 0;
+        var tileId = 0;
 
         if( 12 === shapes.length ) return; //fail safe
+        
+        console.log( 'BUILDING SHAPE #' + Number(shapes.length + 1) );
 
         //the main loop to make all the rest of shapes
         //loop for each tile in the shpae tile count
 
         for(i=0; i < settings.tileCount; i++){
 
-            if(i === 0 ){
+            tileId = i + 1;
+
+            //for now, all shapes start at 0,0
+            if(tileId === 1 ){
                 //reset x and y for this shape
                 buildState.tilePosY = 0;
                 buildState.tilePosX = 0;
             }else{
+                //build down the column
                 buildState.tilePosY++;
             }
-            
-            if( buildState.tilePosY >= buildState.leftEdgeCount ){
-                buildState.tilePosY = buildState.lastPosY;
+
+            //MAIN
+            if( tileId > buildState.leftEdgeCount ){
+                buildState.tilePosY = buildState.curRow;
+                buildState.tilePosX = buildState.curCol;
             }
             
-            if( shapes.length > 0 ){
-                if( (i+1) > buildState.leftEdgeCount ){
-                    buildState.tilePosX++;
-                    buildState.lastPosY++;
-                    if(buildState.lastPosY >= constants.maxYCount){
-                        buildState.lastPosY = 0;
-                        buildState.leftEdgeCount--;
-                    }
-                }
+            //move the row count down the next col
+            if( tileId > buildState.leftEdgeCount ){
+                buildState.curRow++;
             }
-            
+
             //do not allow tiles to go off the preset area
-            if( 
-                buildState.tilePosX >= constants.maxXCount || 
+            if(
+                buildState.tilePosX >= constants.maxXCount ||
                 buildState.tilePosY >= constants.maxYCount
-            ) return;
-            
-            console.log( '...building tile ' + (i+1) + ':    ' + buildState.tilePosX + ', ' + buildState.tilePosY );
+            ){
+                console.log( 'we have gone to far!!' );
+                return;
+            }
+
+            console.log( '...building tile ' + tileId + ':    ' + buildState.tilePosX + ', ' + buildState.tilePosY );
             tile = [ buildState.tilePosX, buildState.tilePosY ];
             shape.push(tile);
 
         }
-        
-        console.log( 'BUILDING SHAPE #' + Number(shapes.length + 1) );
+
         shapes.push(shape);//add the last shape to the list
+
+        //look at the last shape position and move on to the next max edge
+        if(buildState.tilePosY === buildState.leftEdgeCount - 1){
+            buildState.leftEdgeCount--;
+            buildState.curCol++;
+        }
+
         makeShapes(); //call again or the next shape
 
     }
@@ -124,13 +139,14 @@ var VPuzzle = function () {
             //position the next shape draw in next spot on canvas
             settings.startingX += (settings.tileSize * (constants.maxXCount + 1) );
             if( settings.startingX + (settings.tileSize * (constants.maxXCount + 1) ) > canvas.width ){
-                settings.startingX = 20;
-                settings.startingY += (settings.tileSize * (constants.maxYCount + 2) );
+                settings.startingX = constants.startingX;
+                settings.startingY += (settings.tileSize * (constants.maxYCount + 1) );
             }
 
         }
     }
 
+    //draw a shape based on an x,y tile position array
     var drawShape = function (shape) {
         drawBackground(settings.startingX,settings.startingY);
         var x = settings.startingX;
@@ -144,7 +160,7 @@ var VPuzzle = function () {
         }
     }
 
-    //draw one tile
+    //draw one tile on the x,y grid
     var drawTile = function ( x, y ) {
         //test shape
         ctx.fillStyle = "rgb(20,20,20)";
@@ -154,7 +170,7 @@ var VPuzzle = function () {
         ctx.strokeRect( x, y, settings.tileSize, settings.tileSize );
     }
 
-    //draw background
+    //draw the background, the max area for this shape builder
     var drawBackground = function ( x, y ) {
         ctx.fillStyle = "rgb(65,65,65)";
         ctx.fillRect( x, y, (settings.tileSize * constants.maxXCount), (settings.tileSize * constants.maxYCount) );
