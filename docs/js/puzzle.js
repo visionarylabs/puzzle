@@ -16,7 +16,7 @@ var VPuzzle = function () {
     var shapes = [];
 
     var settings = {
-        tileCount : 5, //e.g. 4 for tetrominoes
+        tileCount : 4, //e.g. 4 for tetrominoes
         tileSize : 25,
         startingX : 20,
         startingY : 50,
@@ -48,6 +48,9 @@ var VPuzzle = function () {
         render();
     }
 
+/**
+    the main shapebuilder, recursive to build the next shape on the list
+**/
     var makeShapes = function () {
         var shape = [];
         var tile = [];
@@ -59,7 +62,7 @@ var VPuzzle = function () {
         console.log( 'BUILDING SHAPE #' + Number(shapes.length + 1) );
 
         //the main loop to make all the rest of shapes
-        //loop for each tile in the shpae tile count
+        //loop for each tile in the shape tile count
 
         for(i=0; i < settings.tileCount; i++){
 
