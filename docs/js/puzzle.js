@@ -2,12 +2,13 @@
     Puzzle
     v0.1 | 2019.07.19
     Ben Borkowski - Lead Developer
+    see the nonomino wiki: https://en.wikipedia.org/wiki/Nonomino
 **/
 
 var VPuzzle = function () {
     console.log('hello world, new puzzle game created.')
 
-    var N = 4; //the number of tiles to find all shapes for
+    var N = 8; //the number of tiles to find all shapes for //1-7 works, 8 is slow, 9 is really slow!
     var shapes = []; //the main array of all shapes
     var grid = [];
     var calc = 0; //the number loops made;
@@ -20,6 +21,36 @@ var VPuzzle = function () {
 
     // init
     var init = function () {
+        if(N > 8){
+            console.log('sorry, can not use more than 8 tiles');
+            return;
+        }
+        switch(N){
+            case 8:
+                settings.tileSize = 3.5;
+            break;
+            case 7:
+                settings.tileSize = 7;
+            break;
+            case 6:
+                settings.tileSize = 15;
+            break;
+            case 5:
+                settings.tileSize = 25;
+            break;
+            case 4:
+                settings.tileSize = 30;
+            break;
+            case 3:
+                settings.tileSize = 50;
+            break;
+            case 2:
+                settings.tileSize = 60;
+            break;
+            case 1:
+                settings.tileSize = 100;
+            break;
+        }
         grid = makeGrid(state.nBuild,state.nBuild,null);
         nLoop();
         console.log('*** done making shapes:');
@@ -35,7 +66,7 @@ var VPuzzle = function () {
     }
 
     var settings = {
-        tileSize : 10,
+        tileSize : 5,
         startingX : constants.startingX,
         startingY : constants.startingY,
     }
@@ -78,9 +109,11 @@ var VPuzzle = function () {
             for(i; i < shapes[state.nBuild - 1].length; i++){
                 //place the checkshape on a new grid, and loop through each possilbe addition
                 checkShape = shapes[state.nBuild - 1][i];
-                console.log('*************************************************');
-                console.log('Checking an new Shape from N-1 * ' + 'checking shapes: N' + Number(state.nBuild - 1) + ' : ' + i);
-                console.log(checkShape);
+                
+                //console.log('*************************************************');
+                //console.log('Checking an new Shape from N-1 * ' + 'checking shapes: N' + Number(state.nBuild - 1) + ' : ' + i);
+                //console.log(checkShape);
+                
                 //make new grid 1x larger around new shape
                 //loop the shape and find the dimensions
                 var maxW = 0;
@@ -106,8 +139,10 @@ var VPuzzle = function () {
                     if( tempGrid[z].occupied == false ){
                         newShape = addTileForNewShape(tempGrid,tempGrid[z]);
                         if(newShape){
-                            console.log('TESTING A NEW SHAPE ('+ shapes[state.nBuild].length +')...start to look at each last shape');
-                            console.log(newShape);
+
+                            //console.log('TESTING A NEW SHAPE ('+ shapes[state.nBuild].length +')...start to look at each last shape');
+                            //console.log(newShape);
+
                             isNew = testForNewShape(newShape);
                             if(isNew){
                                 shapes[state.nBuild].push(newShape);
@@ -139,17 +174,16 @@ var VPuzzle = function () {
         var oldShapeGrid = null;
 
         newShapeGrid = placeShapeOnGrid(newShape,newShapeGrid);
-        
+
         var newShapeGridR90 = rotateGrid(newShapeGrid,'r90');
         var newShapeGridR180 = rotateGrid(newShapeGrid,'r180');
         var newShapeGridR270 = rotateGrid(newShapeGrid,'r270');
-        
-        var newShapeGridFlip = flipGrid(newShapeGrid);
 
-        var newShapeGridFlipR90 = rotateGrid(newShapeGridFlip,'r90');
-        var newShapeGridFlipR180 = rotateGrid(newShapeGridFlip,'r180');
-        var newShapeGridFlipR270 = rotateGrid(newShapeGridFlip,'r270');
-        
+        var newShapeGridFlip = rotateGrid(newShapeGrid,'f');
+
+        var newShapeGridFlipR90 = rotateGrid(newShapeGrid,'fr90');
+        var newShapeGridFlipR180 = rotateGrid(newShapeGrid,'fr180');
+        var newShapeGridFlipR270 = rotateGrid(newShapeGrid,'fr270');
 
         //temp for now just rough out and each possible orientation
         //rotate 90 //rotate 180 //270
@@ -157,31 +191,25 @@ var VPuzzle = function () {
 
         // for each shape on this N build test the new shape and each rotation
         for(i = 0; i < shapes[state.nBuild].length; i++){
-            console.log( 'TESTING for Dupes -- N' + state.nBuild + ' shape #' + Number(i+1) );
-            
+            //console.log( 'TESTING for Dupes -- N' + state.nBuild + ' shape #' + Number(i+1) );
+
             oldShapeGrid = makeGrid(state.nBuild,state.nBuild,null);
             oldShapeGrid = placeShapeOnGrid(shapes[state.nBuild][i],oldShapeGrid);
-            
-            if( Number(i+1) == 3 && state.nBuild == 4 && shapes[state.nBuild].length == 3 ){
-                console.log('THIS SHOULD BE A DUPE ????????????????');
-                console.log(oldShapeGrid);
-                console.log(newShapeGridFlip);
-            }
 
-            if( isDupe(newShapeGrid, oldShapeGrid)  ) return false;
-            
-            if( isDupe(newShapeGridR90, oldShapeGrid)  ) return false;
-            if( isDupe(newShapeGridR180, oldShapeGrid)  ) return false;
-            if( isDupe(newShapeGridR270, oldShapeGrid)  ) return false;
-            
-            if( isDupe(newShapeGridFlip, oldShapeGrid)  ) return false;
-            
-            if( isDupe(newShapeGridFlipR90, oldShapeGrid)  ) return false;
-            if( isDupe(newShapeGridFlipR180, oldShapeGrid)  ) return false;
-            if( isDupe(newShapeGridFlipR270, oldShapeGrid)  ) return false;
+            if( isDupe(newShapeGrid, oldShapeGrid) ) return false;
+
+            if( isDupe(newShapeGridR90, oldShapeGrid) ) return false;
+            if( isDupe(newShapeGridR180, oldShapeGrid) ) return false;
+            if( isDupe(newShapeGridR270, oldShapeGrid) ) return false;
+
+            if( isDupe(newShapeGridFlip, oldShapeGrid) ) return false;
+
+            if( isDupe(newShapeGridFlipR90, oldShapeGrid) ) return false;
+            if( isDupe(newShapeGridFlipR180, oldShapeGrid) ) return false;
+            if( isDupe(newShapeGridFlipR270, oldShapeGrid) ) return false;
+
 
         }
-        console.log('* It is new!');
         return true;
     }
 
@@ -203,32 +231,32 @@ var VPuzzle = function () {
         }
         return false;
     }
-    
+
     var flipGrid = function(grid){
         var g = [];
         var space = null;
-        for(y = 0; y <= state.gridMaxY; y++){
+        for(y = 1; y <= state.gridMaxY; y++){
             for(x = state.gridMaxX; x > 0; x--){
                 space = {x:x,y:y,occupied:false};
                 g.push(space);
             }
         }
-        //copy the occopied spaces from the old grid
+        //copy the occupied spaces from the old grid
         for(var z = 0; z < grid.length; z++){
             if(grid[z].occupied == true) g[z].occupied = true;
         }
-        //var tempShape = extractShapeFromGrid(g);
-        //var g = placeShapeOnGrid(tempShape,g);
+        var tempShape = extractShapeFromGrid(g);
+        var g = placeShapeOnGrid(tempShape,g);
         return g;
     }
-    
+
     var rotateGrid = function(grid,orient){
         //if orient flip the gride keys as needed
         //r90,r180,r270,f,f90,f180,f270
         var g = [];
         var space = null;
         switch (orient){
-            
+
             case 'r90':
                 for(x = state.gridMaxX; x > 0; x--){
                     for(y = 1; y <= state.gridMaxY; y++){
@@ -246,20 +274,59 @@ var VPuzzle = function () {
                 }
             break;
             case 'r270':
-                for(x = 0; x <= state.gridMaxX; x++){
+                for(x = 1; x <= state.gridMaxX; x++){
                     for(y = state.gridMaxY; y > 0; y--){
                         space = {x:x,y:y,occupied:false};
                         g.push(space);
                     }
                 }
             break;
+
+            case 'f':
+                for(y = 1; y <= state.gridMaxY; y++){
+                    for(x = state.gridMaxX; x > 0; x--){
+                        space = {x:x,y:y,occupied:false};
+                        g.push(space);
+                    }
+                }
+            break;
+
+            case 'fr90':
+                for(x = state.gridMaxX; x > 0; x--){
+                    for(y = state.gridMaxY; y > 0; y--){
+                        space = {x:x,y:y,occupied:false};
+                        g.push(space);
+                    }
+                }
+            break;
+
+            case 'fr180':
+                for(y = state.gridMaxY; y > 0; y--){
+                    for(x = 1; x <= state.gridMaxX; x++){
+                        space = {x:x,y:y,occupied:false};
+                        g.push(space);
+                    }
+                }
+            break;
+
+            case 'fr270':
+                for(x = 1; x <= state.gridMaxX; x++){
+                    for(y = 1; y <= state.gridMaxY; y++){
+                        space = {x:x,y:y,occupied:false};
+                        g.push(space);
+                    }
+                }
+            break;
+
             default:
                 return grid;
             break;
         }
-        //copy the occopied spaces from the old grid
+
         for(var z = 0; z < grid.length; z++){
-            if(grid[z].occupied == true) g[z].occupied = true;
+            if(grid[z].occupied == true){
+                g[z].occupied = true;
+            }
         }
         var tempShape = extractShapeFromGrid(g);
         var g = placeShapeOnGrid(tempShape,g);
@@ -281,7 +348,7 @@ var VPuzzle = function () {
         }
         return grid;
     }
-    
+
     var extractShapeFromGrid = function(grid){
         var j = 0;
         var shape = [];
@@ -296,7 +363,7 @@ var VPuzzle = function () {
         shape = resetShapeToTopLeft(shape);
         return shape;
     }
-    
+
     var resetShapeToTopLeft = function(shape){
         //reset shape to top left of grid
         var lowestX = N;
