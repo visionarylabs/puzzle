@@ -32,15 +32,15 @@ shapes = the main shape array of all unique shapes. e.g. shapes[5] is an array o
 * same main array of N 1-9 in JSON file for easy lookup in games
 
 ## main loop
-1 start with a 1x1 grid (N = 1)
-2 build and add to shape array then go to N++
-3 take each shape form N - 1 and add it to a grid with one space around it.
-4 fill in the grid with occupied tiles
-5 add a tile to each unoccupied tile and check that it is adjacent
-6 make that to a temp shape, rotate and flip and test against each shape in the current N list
-7 if it is unique add it to the Shape[N] list.
-8 go on to the next unoccupied and unchecked grid space
-9 after all are tested go back to step 3 and start adding tiles to the next shape from N - 1.
+# start with a 1x1 grid (N = 1)
+# build and add to shape array then go to N++
+# take each shape form N - 1 and add it to a grid with one space around it.
+# fill in the grid with occupied tiles
+# add a tile to each unoccupied tile and check that it is adjacent
+# make that to a temp shape, rotate and flip and test against each shape in the current N list
+# if it is unique add it to the Shape[N] list.
+# go on to the next unoccupied and unchecked grid space
+# after all are tested go back to step 3 and start adding tiles to the next shape from N - 1.
 
 ### builds a multi-array for each N number of tiles
 Shapes[1][0] = [ [1,1] ]

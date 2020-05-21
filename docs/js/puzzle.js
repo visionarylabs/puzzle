@@ -6,9 +6,9 @@
 **/
 
 var VPuzzle = function () {
-    console.log('hello world, new puzzle game created.')
+    //console.log('hello world, new puzzle game created.');
 
-    var N = 8; //the number of tiles to find all shapes for //1-7 works, 8 is slow, 9 is really slow!
+    var N = 4; //the number of tiles to find all shapes for //1-7 works, 8 is slow, 9 is really slow!
     var shapes = []; //the main array of all shapes
     var grid = [];
     var calc = 0; //the number loops made;
@@ -18,11 +18,48 @@ var VPuzzle = function () {
     canvas.width = 700;
     canvas.height = 700;
     canvas.id = 'game';
+    
+    //set constants based on settins
+    var constants = {}
+
+    var settings = {}
+
+    //a state to save the tile positions as we build each shape
+    var state = {}
+    
+    var reset = function() {
+        
+        shapes = [];
+        grid = [];
+        calc = 0;
+        
+        constants = {
+            startingX : 20,
+            startingY : 50,
+        }
+    
+        settings = {
+            tileSize : 5,
+            startingX : constants.startingX,
+            startingY : constants.startingY,
+        }
+    
+        //a state to save the tile positions as we build each shape
+        state = {
+            gridMaxX : 1,
+            gridMaxY : 1,
+            nBuild : 1,
+        }
+    }
 
     // init
     var init = function () {
+        
+        clearBoard();
+        reset();
+        
         if(N > 8){
-            console.log('sorry, can not use more than 8 tiles');
+            //console.log('sorry, can not use more than 8 tiles');
             return;
         }
         switch(N){
@@ -33,7 +70,7 @@ var VPuzzle = function () {
                 settings.tileSize = 7;
             break;
             case 6:
-                settings.tileSize = 15;
+                settings.tileSize = 12;
             break;
             case 5:
                 settings.tileSize = 25;
@@ -53,29 +90,67 @@ var VPuzzle = function () {
         }
         grid = makeGrid(state.nBuild,state.nBuild,null);
         nLoop();
-        console.log('*** done making shapes:');
-        console.log(calc);
-        console.log(shapes);
-        render();
+        //console.log('*** done making shapes:');
+        //console.log(calc);
+        //console.log(shapes);
     }
 
-    //set constants based on settins
-    var constants = {
-        startingX : 20,
-        startingY : 50,
-    }
-
-    var settings = {
-        tileSize : 5,
-        startingX : constants.startingX,
-        startingY : constants.startingY,
-    }
-
-    //a state to save the tile positions as we build each shape
-    var state = {
-        gridMaxX : 1,
-        gridMaxY : 1,
-        nBuild : 1,
+    var keyBoardListeners = function(){
+        document.addEventListener('keyup', (e) => {
+            switch(e.code){
+                //48 to 57 is 0 to 9
+                case 'Digit0' :
+                    console.log('reset');
+                    N = 0;
+                    init();
+                break;
+                case 'Digit1' :
+                    console.log('1');
+                    N = 1;
+                    init();
+                break;
+                case 'Digit2' :
+                    console.log('2');
+                    N = 2;
+                    init();
+                break;
+                case 'Digit3' :
+                    console.log('3');
+                    N = 3;
+                    init();
+                break;
+                case 'Digit4' :
+                    console.log('4');
+                    N = 4;
+                    init();
+                break;
+                case 'Digit5' :
+                    console.log('5');
+                    N = 5;
+                    init();
+                break;
+                case 'Digit6' :
+                    console.log('6');
+                    N = 6;
+                    init();
+                break;
+                case 'Digit7' :
+                    console.log('7');
+                    N = 7;
+                    init();
+                break;
+                case 'Digit8' :
+                    console.log('8');
+                    N = 8;
+                    init();
+                break;
+                case 'Digit9' :
+                    console.log('9');
+                    N = 0;
+                    init();
+                break;
+            }
+        });
     }
 
     /**
@@ -83,8 +158,8 @@ var VPuzzle = function () {
          *************************************************************************************
     **/
     var nLoop = function () {
-        console.log('-----------------------------------------------------');
-        console.log('** N Loop **************** ' + Number(state.nBuild) + ' of ' + N);
+        //console.log('-----------------------------------------------------');
+        //console.log('** N Loop **************** ' + Number(state.nBuild) + ' of ' + N);
         //grid = makeGrid(state.nBuild,state.nBuild,null);
         //test each shpae from the last N count
 
@@ -158,6 +233,9 @@ var VPuzzle = function () {
             //go on to next N count
             state.nBuild++;
             nLoop();
+        }else{
+            console.log('done finding shapes');
+            render();
         }
     }
     /**
@@ -446,6 +524,7 @@ var VPuzzle = function () {
 
     // draw / render everything
     var render = function () {
+        console.log('rendering shapes');
         ctx.clearRect(0,0,canvas.width, canvas.height);
         //type
         ctx.fillStyle = "rgb(255, 255, 255)";
@@ -453,13 +532,29 @@ var VPuzzle = function () {
         ctx.textAlign = "left";
         ctx.textBaseline = "top";
         ctx.fillText("Puzzle Game" , 10 , 10);
+        ctx.fillText("Press a key 1 through 8" , 200 , 10);
+        ctx.fillText("N = " + N , 420 , 10);
         drawShapes();
+    }
+    
+    // clear the board
+    var clearBoard = function () {
+        console.log('clearing board');
+        ctx.clearRect(0,0,canvas.width, canvas.height);
+        //type
+        ctx.fillStyle = "rgb(255, 255, 255)";
+        ctx.font = "18px Helvetica";
+        ctx.textAlign = "left";
+        ctx.textBaseline = "top";
+        ctx.fillText("Puzzle Game" , 10 , 10);
+        ctx.fillText("Calculating... please wait..." , 200 , 10);
+        ctx.fillText("N = " + N , 420 , 10);
     }
 
     //draw all the shpaes in the list
     var drawShapes = function () {
-        console.log('drawing all shapes...');
-        console.log(shapes);
+        //console.log('drawing all shapes...');
+        //console.log(shapes);
         var stepToDraw = state.nBuild;
         var i = 0;
         var count = shapes[stepToDraw].length;
@@ -513,10 +608,12 @@ var VPuzzle = function () {
     }
 
     return {
-        init : init
+        init : init,
+        keyBoardListeners : keyBoardListeners,
     }
 
 }
 
 var game = new VPuzzle();
 game.init();
+game.keyBoardListeners();
